@@ -1,0 +1,115 @@
+[
+    {
+        "id": "a4bfa6b54e6f940b",
+        "type": "tab",
+        "label": "Flux 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d7f42ae3718cbddb",
+        "type": "mqtt in",
+        "z": "a4bfa6b54e6f940b",
+        "name": "",
+        "topic": "homeTrainerCastres3/speed",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "785b51c888e1ec8d",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 360,
+        "y": 200,
+        "wires": [
+            [
+                "107e4907bab9491e",
+                "0972b6cd8772459d",
+                "6c048c84647e0d96"
+            ]
+        ]
+    },
+    {
+        "id": "107e4907bab9491e",
+        "type": "debug",
+        "z": "a4bfa6b54e6f940b",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "0972b6cd8772459d",
+        "type": "websocket out",
+        "z": "a4bfa6b54e6f940b",
+        "name": "WebSocketRaspberryVitesse",
+        "server": "8879ede32cb83812",
+        "client": "",
+        "x": 720,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6c048c84647e0d96",
+        "type": "websocket out",
+        "z": "a4bfa6b54e6f940b",
+        "name": "WebSocketRaspberryAngle",
+        "server": "6a7f4bb529cf63bd",
+        "client": "",
+        "x": 720,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "785b51c888e1ec8d",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.emqx.io/mqtt",
+        "port": "8083",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "8879ede32cb83812",
+        "type": "websocket-listener",
+        "path": "/ws/speed",
+        "wholemsg": "false"
+    },
+    {
+        "id": "6a7f4bb529cf63bd",
+        "type": "websocket-listener",
+        "path": "/ws/angle",
+        "wholemsg": "false"
+    }
+]
