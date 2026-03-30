@@ -82,7 +82,11 @@ wsAngle.onclose = function () {
 // update() : Met à jour la position et l'angle du vélo en fonction des valeurs de vitesse et de direction saisies. Calcule le rayon de virage et la vitesse angulaire pour simuler les mouvements réalistes du vélo.
 function update() {
   let speed = parseFloat(speedInput.value);
-  speed *= 100;
+  speed *= 3.6;
+  if(speed !== 0)
+  {
+    speed = parseFloat(speed).toFixed(2);
+  }
   const steeringDeg = parseFloat(steeringInput.value);
   const steering = (steeringDeg * Math.PI) / 180;
   speedValue.textContent = speed;
