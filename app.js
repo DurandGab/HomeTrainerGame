@@ -13,6 +13,18 @@ let bike = {
   angle: 0,
   wheelBase: 60,
 };
+let bpm = 0;
+const heart = document.querySelector(".heart");
+
+// Test animation coeur en appuyant sur une touche
+document.addEventListener("keypress", () => {
+  heart.classList.add("heart-animation");
+
+  // Ajout de la classe pour déclencher l'animation
+  setTimeout(() => {
+    heart.classList.remove("heart-animation");
+  }, 600);
+});
 
 // Connexion WebSocket pour recevoir les mises à jour de vitesse
 const ws = new WebSocket("ws://192.168.0.227:1880/ws/speed");
@@ -79,6 +91,48 @@ wsAngle.onerror = function (error) {
 wsAngle.onclose = function () {
   console.log("Connexion WebSocket angle fermée");
 };
+
+// Connexion WebSocket pour recevoir le BPM
+const wsBpm = new WebSocket("ws://localhost:1880/ws/bpm");
+wsBpm.onopen = function () {
+  console.log("Connecté au WebSocket pour le pouls");
+};
+wsBpm.onmessage = function (event) {
+  console.log("Message WebSocket reçu:", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data !== undefined) {
+      bpm = data;
+      console.log("BPM vaut :", data);
+
+      // Ajout de la classe pour déclencher l'animation
+      heart.classList.add("heart-animation");
+
+      // Suppression de la classe dès que l'animation est terminée
+      setTimeout(() => {
+        heart.classList.remove("heart-animation");
+      }, 600);
+    } else {
+      console.warn("Payload vide : ", data);
+    }
+  } catch (e) {
+    // Si ce n'est pas JSON, traiter comme valeur numérique directe
+    // const speed = parseFloat(event.data);
+    // if (!isNaN(speed)) {
+    //   speedInput.value = speed;
+    //   console.log("Vitesse mise à jour à (valeur directe):", speed);
+    // } else {
+    //   console.error("Message non reconnu:", event.data);
+    // }
+  }
+};
+wsBpm.onerror = function (error) {
+  console.error("Erreur WebSocket:", error);
+};
+wsBpm.onclose = function () {
+  console.log("Connexion WebSocket fermée");
+};
+
 // update() : Met à jour la position et l'angle du vélo en fonction des valeurs de vitesse et de direction saisies. Calcule le rayon de virage et la vitesse angulaire pour simuler les mouvements réalistes du vélo.
 function update() {
   let speed = parseFloat(speedInput.value);
