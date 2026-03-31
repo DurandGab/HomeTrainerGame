@@ -42,3 +42,9 @@ canvas {
   bottom: 4%;
   right: 2%;
 }
+
+#bpm-container {
+  color: red;
+  font-weight: bold;
+  font-size: 2em;
+}

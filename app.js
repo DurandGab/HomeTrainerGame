@@ -15,6 +15,7 @@ let bike = {
 };
 let bpm = 0;
 const heart = document.querySelector(".heart");
+const bpmValue = document.querySelector("#bpm-value");
 
 // Test animation coeur en appuyant sur une touche
 document.addEventListener("keypress", () => {
@@ -103,6 +104,9 @@ wsBpm.onmessage = function (event) {
     const data = JSON.parse(event.data);
     if (data !== undefined) {
       bpm = data;
+      // Affichage valeur BPM reçue
+      bpmValue.textContent = data;
+
       console.log("BPM vaut :", data);
 
       // Ajout de la classe pour déclencher l'animation
