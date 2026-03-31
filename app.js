@@ -93,7 +93,7 @@ wsAngle.onclose = function () {
 };
 
 // Connexion WebSocket pour recevoir le BPM
-const wsBpm = new WebSocket("ws://localhost:1880/ws/bpm");
+const wsBpm = new WebSocket("ws://192.168.0.227:1880/ws/bpm");
 wsBpm.onopen = function () {
   console.log("Connecté au WebSocket pour le pouls");
 };
