@@ -47,6 +47,7 @@ const obstacleTypes = ['arbre', 'rocher', 'pieton'];
 
 let obstacles = [];
 let bonuses = [];
+let floatingTexts = [];
 let score = 0;
 let crashed = false;
 let generatedChunks = new Set();
@@ -175,6 +176,7 @@ function checkCollisions() {
 
     if (dist < bikeRadius + obs.radius) {
       score -= 10;
+      addFloatingText("-10", "red");
       const angle = Math.atan2(dy, dx);
       bike.x += Math.cos(angle) * 50;
       crashed = true;
@@ -199,6 +201,7 @@ function checkCollisions() {
 
     if (dist < bikeRadius + b.radius) {
       score += 5;
+      addFloatingText("+5", "gold");
       b.active = false;
     }
   });
@@ -269,36 +272,28 @@ function updateChunks() {
     }
   }
 }
+
+function addFloatingText(text, color) {
+  floatingTexts.push({
+    text: text,
+    x: canvas.width / 2,
+    y: canvas.height / 2 - 60,
+    alpha: 1,
+    color: color
+  });
+}
+
 // drawWorld() : Dessine l'environnement : un fond vert et une grille infinie répétitive, centrée sur la position du vélo pour créer un effet de monde ouvert.
 function drawWorld() {
   const gridSize = 50;
   // Fond vert
-  ctx.fillStyle = "#4CAF50";
+  ctx.fillStyle = "rgb(64,64,188)";
   ctx.fillRect(
     bike.x - canvas.width / 2 - 1000,
     bike.y - canvas.height / 2 - 1000,
     canvas.width + 2000,
     canvas.height + 2000,
   );
-  // Grille répétitive infinie
-  ctx.strokeStyle = "#3e8e41";
-  ctx.lineWidth = 1;
-  let startX = Math.floor((bike.x - canvas.width / 2) / gridSize) * gridSize;
-  let endX = bike.x + canvas.width / 2;
-  let startY = Math.floor((bike.y - canvas.height / 2) / gridSize) * gridSize;
-  let endY = bike.y + canvas.height / 2;
-  for (let x = startX; x < endX; x += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, startY);
-    ctx.lineTo(x, endY);
-    ctx.stroke();
-  }
-  for (let y = startY; y < endY; y += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(startX, y);
-    ctx.lineTo(endX, y);
-    ctx.stroke();
-  }
   // // Route répétitive horizontale
   // ctx.fillStyle = "#555";
   // for (let y = startY; y < endY; y += 800) {
@@ -344,6 +339,24 @@ function drawObjects() {
   });
 }
 
+function drawFloatingTexts() {
+  floatingTexts.forEach((ft) => {
+    ctx.save();
+    ctx.globalAlpha = ft.alpha;
+    ctx.fillStyle = ft.color;
+    ctx.font = "bold 36px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(ft.text, ft.x, ft.y);
+    ctx.restore();
+
+    ft.y -= 1.5;       // Monte progressivement
+    ft.alpha -= 0.02;  // Disparaît progressivement
+  });
+
+  // Nettoie les textes invisibles
+  floatingTexts = floatingTexts.filter((ft) => ft.alpha > 0);
+}
+
 // loop() : Boucle d'animation principale qui appelle update(), dessine le monde et le vélo, puis utilise requestAnimationFrame pour répéter le cycle à chaque frame, créant l'animation fluide.
 function loop() {
   update();
@@ -354,6 +367,7 @@ function loop() {
   drawObjects();
   ctx.restore();
   drawBike();
+  drawFloatingTexts(); // ← ajouter ici
   requestAnimationFrame(loop);
 }
 loop();
