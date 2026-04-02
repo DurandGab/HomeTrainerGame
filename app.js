@@ -15,6 +15,21 @@ let bike = {
   wheelBase: 60,
 };
 
+// Chargement des images
+const images = {
+  arbre: new Image(),
+  rocher: new Image(),
+  pieton: new Image(),
+  piece: new Image()
+};
+
+images.arbre.src = 'img/arbre.png';
+images.rocher.src = 'img/rocher.png';
+images.pieton.src = 'img/pieton.png';
+images.piece.src = 'img/piece.png';
+
+const obstacleTypes = ['arbre', 'rocher', 'pieton'];
+
 let obstacles = [];
 let bonuses = [];
 let score = 0;
@@ -153,24 +168,27 @@ function update() {
 
 function generateChunk(cx, cy) {
   const key = `${cx},${cy}`;
-
   if (generatedChunks.has(key)) return;
   generatedChunks.add(key);
 
-  // Obstacles
-  for (let i = 0; i < 3; i++) {
+  const margin = 100;
+
+  // 30% de chance d'avoir un obstacle par chunk
+  if (Math.random() < 0.5) {
+    const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
     obstacles.push({
-      x: cx * chunkSize + Math.random() * chunkSize,
-      y: cy * chunkSize + Math.random() * chunkSize,
-      radius: 20,
+      x: cx * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
+      y: cy * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
+      radius: 25,
+      type: type
     });
   }
 
-  // Bonus
-  for (let i = 0; i < 2; i++) {
+  // 20% de chance d'avoir un bonus par chunk
+  if (Math.random() < 0.3) {
     bonuses.push({
-      x: cx * chunkSize + Math.random() * chunkSize,
-      y: cy * chunkSize + Math.random() * chunkSize,
+      x: cx * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
+      y: cy * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
       radius: 15,
       active: true,
     });
@@ -190,7 +208,7 @@ function updateChunks() {
 }
 // drawWorld() : Dessine l'environnement : un fond vert et une grille infinie répétitive, centrée sur la position du vélo pour créer un effet de monde ouvert.
 function drawWorld() {
-  const gridSize = 100;
+  const gridSize = 50;
   // Fond vert
   ctx.fillStyle = "#4CAF50";
   ctx.fillRect(
@@ -246,21 +264,18 @@ function drawBike() {
 }
 
 function drawObjects() {
-  // Obstacles (rouge foncé)
-  ctx.fillStyle = "darkred";
+  // Dessin des obstacles
   obstacles.forEach((obs) => {
-    ctx.beginPath();
-    ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
-    ctx.fill();
+    const img = images[obs.type];
+    const size = obs.type === 'pieton' ? obs.radius * 2.5 : obs.radius * 4.5; // ← taille normale pour les piétons
+    ctx.drawImage(img, obs.x - size/2, obs.y - size/2, size, size);
   });
 
-  // Bonus (jaune)
-  ctx.fillStyle = "gold";
+  // Dessin des pièces
   bonuses.forEach((b) => {
     if (b.active) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-      ctx.fill();
+      const size = b.radius * 3.5;
+      ctx.drawImage(images.piece, b.x - b.radius, b.y - b.radius, size, size);
     }
   });
 }
