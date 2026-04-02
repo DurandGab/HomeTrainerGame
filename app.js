@@ -14,6 +14,19 @@ let bike = {
   angle: 0,
   wheelBase: 60,
 };
+let bpm = 0;
+const heart = document.querySelector(".heart");
+const bpmValue = document.querySelector("#bpm-value");
+
+// Test animation coeur en appuyant sur une touche
+document.addEventListener("keypress", () => {
+  heart.classList.add("heart-animation");
+
+  // Ajout de la classe pour déclencher l'animation
+  setTimeout(() => {
+    heart.classList.remove("heart-animation");
+  }, 600);
+});
 
 // Chargement des images
 const images = {
@@ -79,9 +92,9 @@ wsAngle.onmessage = function (event) {
   console.log("Message WebSocket angle reçu:", event.data);
   try {
     const data = JSON.parse(event.data);
-    if (data.angle !== undefined) {
-      steeringInput.value = data.angle;
-      console.log("Angle mis à jour à:", data.angle);
+    if (data !== undefined) {
+      steeringInput.value = data;
+      console.log("Angle mis à jour à:", data);
     } else {
       console.warn("Message sans champ 'angle':", data);
     }
@@ -102,6 +115,51 @@ wsAngle.onerror = function (error) {
 wsAngle.onclose = function () {
   console.log("Connexion WebSocket angle fermée");
 };
+
+// Connexion WebSocket pour recevoir le BPM
+const wsBpm = new WebSocket("ws://192.168.0.227:1880/ws/bpm");
+wsBpm.onopen = function () {
+  console.log("Connecté au WebSocket pour le pouls");
+};
+wsBpm.onmessage = function (event) {
+  console.log("Message WebSocket reçu:", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data !== undefined) {
+      bpm = data;
+      // Affichage valeur BPM reçue
+      bpmValue.textContent = data;
+
+      console.log("BPM vaut :", data);
+
+      // Ajout de la classe pour déclencher l'animation
+      heart.classList.add("heart-animation");
+
+      // Suppression de la classe dès que l'animation est terminée
+      setTimeout(() => {
+        heart.classList.remove("heart-animation");
+      }, 600);
+    } else {
+      console.warn("Payload vide : ", data);
+    }
+  } catch (e) {
+    // Si ce n'est pas JSON, traiter comme valeur numérique directe
+    // const speed = parseFloat(event.data);
+    // if (!isNaN(speed)) {
+    //   speedInput.value = speed;
+    //   console.log("Vitesse mise à jour à (valeur directe):", speed);
+    // } else {
+    //   console.error("Message non reconnu:", event.data);
+    // }
+  }
+};
+wsBpm.onerror = function (error) {
+  console.error("Erreur WebSocket:", error);
+};
+wsBpm.onclose = function () {
+  console.log("Connexion WebSocket fermée");
+};
+
 
 // checkCollisions() : Vérifie les collisions entre le vélo et les obstacles, ainsi que la collecte des bonus. En cas de collision, pénalise le score, repousse le vélo et gère l'état de crash pour éviter les collisions répétées.
 function checkCollisions() {
