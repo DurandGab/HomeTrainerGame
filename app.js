@@ -69,9 +69,9 @@ wsAngle.onmessage = function (event) {
   console.log("Message WebSocket angle reçu:", event.data);
   try {
     const data = JSON.parse(event.data);
-    if (data.angle !== undefined) {
-      steeringInput.value = data.angle;
-      console.log("Angle mis à jour à:", data.angle);
+    if (data !== undefined) {
+      steeringInput.value = data;
+      console.log("Angle mis à jour à:", data);
     } else {
       console.warn("Message sans champ 'angle':", data);
     }
