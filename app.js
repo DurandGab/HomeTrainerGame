@@ -1,3 +1,5 @@
+
+
 // Initialisation : Configure le canvas, le contexte 2D, les dimensions, les éléments DOM pour les contrôles (vitesse et direction), et définit l'objet bike avec position, angle et empattement.
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -166,6 +168,7 @@ function checkCollisions() {
   const bikeRadius = 15;
 
   for (let obs of obstacles) {
+    if (!obs.active) continue;
     const dx = bike.x - obs.x;
     const dy = bike.y - obs.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -176,6 +179,7 @@ function checkCollisions() {
       bike.x += Math.cos(angle) * 50;
       crashed = true;
       speedInput.value = 0;
+      obs.active = false;
 
       setTimeout(() => {
         crashed = false;
@@ -238,7 +242,8 @@ function generateChunk(cx, cy) {
       x: cx * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
       y: cy * chunkSize + margin + Math.random() * (chunkSize - margin * 2),
       radius: 25,
-      type: type
+      type: type,
+      active: true
     });
   }
 
@@ -324,10 +329,11 @@ function drawBike() {
 function drawObjects() {
   // Dessin des obstacles
   obstacles.forEach((obs) => {
-    const img = images[obs.type];
-    const size = obs.type === 'pieton' ? obs.radius * 2.5 : obs.radius * 4.5; // ← taille normale pour les piétons
-    ctx.drawImage(img, obs.x - size/2, obs.y - size/2, size, size);
-  });
+  if (!obs.active) return; // ← skip les inactifs
+  const img = images[obs.type];
+  const size = obs.type === 'pieton' ? obs.radius * 2.5 : obs.radius * 4.5;
+  ctx.drawImage(img, obs.x - size/2, obs.y - size/2, size, size);
+});
 
   // Dessin des pièces
   bonuses.forEach((b) => {
