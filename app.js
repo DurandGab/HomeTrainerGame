@@ -19,8 +19,10 @@ let bike = {
 let bpm = 0;
 const heart = document.querySelector(".heart");
 const bpmValue = document.querySelector("#bpm-value");
+let msgSalles = "";
 
 let coinSound = new Audio("sounds/mario-coin.mp3");
+let doorBellSound = new Audio("sounds/doorbell.mp3");
 
 // Test animation coeur en appuyant sur une touche
 document.addEventListener("keypress", () => {
@@ -162,6 +164,73 @@ wsBpm.onerror = function (error) {
   console.error("Erreur WebSocket:", error);
 };
 wsBpm.onclose = function () {
+  console.log("Connexion WebSocket fermée");
+};
+
+let timeOutSalle101 = false;
+let timeOutSalle107 = false;
+let timeOutSalleB012 = false;
+
+let mapSalles = new Map();
+mapSalles.set("101", timeOutSalle101);
+mapSalles.set("107", timeOutSalle107);
+mapSalles.set("B012", timeOutSalleB012);
+
+// Connexion WebSocket pour recevoir le nom des salles
+const wsSalles = new WebSocket("ws://192.168.0.227:1880/ws/salles");
+wsSalles.onopen = function () {
+  console.log("Connecté au WebSocket pour la détection des Arduino");
+};
+wsSalles.onmessage = function (event) {
+  console.log("Message WebSocket reçu:", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data !== undefined) {
+      msgSalles = data;
+      console.log("msgSalles vaut : " + msgSalles);
+
+      let rooms = data.rooms
+      console.log(rooms);
+
+      for(let room of rooms)
+      {
+        if(room.present && room.status == "Validé ✅")
+        {
+          let roomName = room.room;
+          let timeOutRoomDetected = mapSalles.get(roomName);
+          console.log(roomName + " timeout = " + timeOutRoomDetected);
+
+          // Si les 30 secondes depuis la dernière détection ne sont pas passées, on n'affiche rien
+          if(!timeOutRoomDetected)
+          {
+            console.log("Salle " + roomName + " détectée !!!!");
+            timeOutRoomDetected = true;
+            mapSalles.set(roomName, timeOutRoomDetected);
+
+            addFloatingText(`Salle ${roomName} détectée ! +100`, "turquoise");
+            doorBellSound.play();
+            score += 100;
+
+            console.log("Timer de 30 secondes débuté : détection suspendue");
+  
+            setTimeout(() => {
+              timeOutRoomDetected = false;
+              mapSalles.set(roomName, timeOutRoomDetected);
+            }, 30000);
+          }
+        }
+      }
+    } else {
+      console.warn("Payload vide : ", data);
+    }
+  } catch (e) {
+    console.error("Message non reconnu:", event.data);
+  }
+};
+wsSalles.onerror = function (error) {
+  console.error("Erreur WebSocket:", error);
+};
+wsSalles.onclose = function () {
   console.log("Connexion WebSocket fermée");
 };
 
@@ -347,14 +416,24 @@ function drawFloatingTexts() {
   floatingTexts.forEach((ft) => {
     ctx.save();
     ctx.globalAlpha = ft.alpha;
+    let color = ft.color;
     ctx.fillStyle = ft.color;
     ctx.font = "bold 36px Arial";
     ctx.textAlign = "center";
     ctx.fillText(ft.text, ft.x, ft.y);
     ctx.restore();
 
-    ft.y -= 1.5;       // Monte progressivement
-    ft.alpha -= 0.02;  // Disparaît progressivement
+    // Le texte des salles s'affiche plus longtemps que les points des pièces et obstacles
+    if(color == "turquoise")
+    {
+      ft.y -= 1;       // Monte progressivement
+      ft.alpha -= 0.006;  // Disparaît progressivement
+    }
+    else
+    {
+      ft.y -= 1.5;       // Monte progressivement
+      ft.alpha -= 0.02;  // Disparaît progressivement
+    }
   });
 
   // Nettoie les textes invisibles
