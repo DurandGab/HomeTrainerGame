@@ -22,7 +22,7 @@ const bpmValue = document.querySelector("#bpm-value");
 let msgSalles = "";
 
 let coinSound = new Audio("sounds/mario-coin.mp3");
-let doorBellSound = new Audio("sounds/doorbell.mp3");
+let doorBellSound = new Audio("sounds/short-doorbell.mp3");
 
 // Test animation coeur en appuyant sur une touche
 document.addEventListener("keypress", () => {
@@ -187,14 +187,13 @@ wsSalles.onmessage = function (event) {
     const data = JSON.parse(event.data);
     if (data !== undefined) {
       msgSalles = data;
-      console.log("msgSalles vaut : " + msgSalles);
 
       let rooms = data.rooms
       console.log(rooms);
 
       for(let room of rooms)
       {
-        if(room.present && room.status == "Validé ✅")
+        if(room.present && room.status == "Validé ✅" && room.rssi > -40)
         {
           let roomName = room.room;
           let timeOutRoomDetected = mapSalles.get(roomName);
@@ -212,11 +211,6 @@ wsSalles.onmessage = function (event) {
             score += 100;
 
             console.log("Timer de 30 secondes débuté : détection suspendue");
-  
-            setTimeout(() => {
-              timeOutRoomDetected = false;
-              mapSalles.set(roomName, timeOutRoomDetected);
-            }, 30000);
           }
         }
       }
