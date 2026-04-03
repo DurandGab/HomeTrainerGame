@@ -23,6 +23,7 @@ let msgSalles = "";
 
 let coinSound = new Audio("sounds/mario-coin.mp3");
 let doorBellSound = new Audio("sounds/short-doorbell.mp3");
+let carCrashSound = new Audio("sounds/short-car-crash.mp3");
 
 // Test animation coeur en appuyant sur une touche
 document.addEventListener("keypress", () => {
@@ -241,6 +242,11 @@ function checkCollisions() {
 
     if (dist < bikeRadius + obs.radius) {
       score -= 10;
+      // Son car crash
+      if(obs.type == "rocher")
+      {
+        carCrashSound.play();
+      }
       addFloatingText("-10", "red");
       const angle = Math.atan2(dy, dx);
       bike.x += Math.cos(angle) * 50;
