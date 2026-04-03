@@ -20,6 +20,8 @@ let bpm = 0;
 const heart = document.querySelector(".heart");
 const bpmValue = document.querySelector("#bpm-value");
 
+let coinSound = new Audio("sounds/mario-coin.mp3");
+
 // Test animation coeur en appuyant sur une touche
 document.addEventListener("keypress", () => {
   heart.classList.add("heart-animation");
@@ -203,6 +205,8 @@ function checkCollisions() {
       score += 5;
       addFloatingText("+5", "gold");
       b.active = false;
+
+      coinSound.play();
     }
   });
 }
