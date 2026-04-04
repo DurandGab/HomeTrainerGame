@@ -21,6 +21,9 @@ const heart = document.querySelector(".heart");
 const bpmValue = document.querySelector("#bpm-value");
 let msgSalles = "";
 
+const spo2Value = document.querySelector("#spo2-value");
+const temperatureValue = document.querySelector("#temperature-value");
+
 let coinSound = new Audio("sounds/mario-coin.mp3");
 let doorBellSound = new Audio("sounds/short-doorbell.mp3");
 let carCrashSound = new Audio("sounds/short-car-crash.mp3");
@@ -229,6 +232,55 @@ wsSalles.onclose = function () {
   console.log("Connexion WebSocket fermée");
 };
 
+// Connexion WebSocket pour recevoir le SPO2
+const wsSpo2 = new WebSocket("ws://192.168.0.227:1880/ws/spo2");
+wsSpo2.onopen = function () {
+  console.log("Connecté au WebSocket pour le SPO2");
+};
+wsSpo2.onmessage = function (event) {
+  console.log("Message WebSocket SPO2 reçu:", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data !== undefined) {
+      console.log(data);
+
+      spo2Value.textContent = data;
+    }
+  } catch (e) {
+    console.error("Message non reconnu:", event.data);
+  }
+};
+wsSpo2.onerror = function (error) {
+  console.error("Erreur WebSocket:", error);
+};
+wsSpo2.onclose = function () {
+  console.log("Connexion WebSocket fermée");
+};
+
+// Connexion WebSocket pour recevoir la température
+const wsTemperature = new WebSocket("ws://192.168.0.227:1880/ws/temp");
+wsTemperature.onopen = function () {
+  console.log("Connecté au WebSocket pour la température");
+};
+wsTemperature.onmessage = function (event) {
+  console.log("Message WebSocket température reçu:", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data !== undefined) {
+      console.log(data);
+
+      temperatureValue.textContent = data;
+    }
+  } catch (e) {
+    console.error("Message non reconnu:", event.data);
+  }
+};
+wsTemperature.onerror = function (error) {
+  console.error("Erreur WebSocket:", error);
+};
+wsTemperature.onclose = function () {
+  console.log("Connexion WebSocket fermée");
+};
 
 // checkCollisions() : Vérifie les collisions entre le vélo et les obstacles, ainsi que la collecte des bonus. En cas de collision, pénalise le score, repousse le vélo et gère l'état de crash pour éviter les collisions répétées.
 function checkCollisions() {
